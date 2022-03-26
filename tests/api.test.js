@@ -21,7 +21,12 @@ describe('Test water level measurements API', () => {
         const collections = db.connection.collections;
         for (const key in collections) {
             const collection = collections[key];
-            await collection.drop();
+            try {
+                await collection.drop();
+            } catch (error) {
+                'pass';
+                // Collection was empty   
+            }
         }
     });
 
@@ -43,6 +48,19 @@ describe('Test water level measurements API', () => {
 
         expect(response.statusCode).toBe(201);
         expect(response.body.message).toBe('Water level measurement saved successfully');
+    });
+
+    test('Test water level measurement submission with no water level', async () => {
+        const response = await server.post('/api/waterLevelMeasurement')
+            .send({
+                metadata: {
+                    example1: 'Some data',
+                    example2: 'Some more data'
+                }
+            });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toBe('Water level is required');
     });
 
     test('Test water level measurement retrieval for last 24 hours', async () => {
@@ -94,5 +112,35 @@ describe('Test water level measurements API', () => {
             ]
         });
         expect(response.body.waterLevelMeasurements[0].metadata).toBeUndefined();
+    });
+
+    test('Test water level measurement retrieval for last 24 without data', async () => {
+        const response = await server.get('/api/waterLevelMeasurement/last24Hours');
+        expect(response.statusCode).toBe(200);
+        expect(response.body.waterLevelMeasurements).toHaveLength(0);
+    });
+});
+
+describe('Test water level measurements with database error', () => {
+    let server = supertest(app);
+
+    test('Test water level measurement submission with database error', async () => {
+        const response = await server.post('/api/waterLevelMeasurement')
+            .send({
+                waterLevel: 4.2,
+                metadata: {
+                    example1: 'Some data',
+                    example2: 'Some more data'
+                }
+            });
+
+        expect(response.statusCode).toBe(500);
+        expect(response.body.message).toBe('Error saving water level measurement');
+    });
+
+    test('Test water level measurement retrieval with database error', async () => {
+        const response = await server.get('/api/waterLevelMeasurement/last24Hours');
+        expect(response.statusCode).toBe(500);
+        expect(response.body.message).toBe('Error retrieving water level measurements');
     });
 });

@@ -32,15 +32,14 @@ const router = express.Router();
 router.post('/waterLevelMeasurement', async (req, res) => {
     const {waterLevel, metadata} = req.body;
     if (!waterLevel) {
-        res.status(400).json({message: 'Water level is required'});
+        return res.status(400).json({message: 'Water level is required'});
     }
-
     const newWaterLevelMeasurement = new waterLevelMeasurement({
         timestamp: new Date(),
         waterLevel: waterLevel,
         metadata: metadata
     });
-    
+
     await newWaterLevelMeasurement.save()
         .then(() => {
             res.status(201).send({
@@ -116,7 +115,7 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         .catch(
             (error) => {
                 res.status(500).send({
-                    message: 'Error getting water level measurements for last 24 hours',
+                    message: 'Error retrieving water level measurements',
                     error
                 });
             }
