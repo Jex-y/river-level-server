@@ -1,3 +1,6 @@
+.vscode
+apidoc/
+
 # Sensitive data
 .env
 
