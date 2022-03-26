@@ -1,5 +1,5 @@
 .vscode
-apidoc/
+doc/
 
 # Sensitive data
 .env

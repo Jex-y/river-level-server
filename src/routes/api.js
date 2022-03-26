@@ -1,7 +1,7 @@
 const express = require('express');
 const waterLevelMeasurement = require('../models/waterLevelMeasurement');
 
-const router = express.Router()
+const router = express.Router();
 
 // Endpoint for submitting water level measurement
 /**
@@ -11,8 +11,8 @@ const router = express.Router()
  * @apiVersion 1.0.0
  * @apiDescription Submit water level measurement
  * 
- * @apiParam {Number} waterLevel Water level in meters
- * @apiParam {Object} metadata
+ * @apiBody {Number} waterLevel Water level measurement
+ * @apiBody {Object} metadata Metadata associated with the water level measurement
  * 
  * @apiSuccess {String} Water level measurement saved successfully
  * 
