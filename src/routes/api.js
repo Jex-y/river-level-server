@@ -12,7 +12,7 @@ const router = express.Router();
  * @apiDescription Submit water level measurement
  * 
  * @apiBody {Number} waterLevel Water level measurement
- * @apiBody {Object} metadata Metadata associated with the water level measurement
+ * @apiBody {Object} metadata Metadata associated with the water level measurement (optional)
  * 
  * @apiSuccess {String} Water level measurement saved successfully
  * 
@@ -30,11 +30,17 @@ const router = express.Router();
  * }
  */
 router.post('/waterLevelMeasurement', async (req, res) => {
+    const {waterLevel, metadata} = req.body;
+    if (!waterLevel) {
+        res.status(400).json({message: 'Water level is required'});
+    }
+
     const newWaterLevelMeasurement = new waterLevelMeasurement({
         timestamp: new Date(),
-        waterLevel: req.body.waterLevel,
-        metadata: req.body.metadata
+        waterLevel: waterLevel,
+        metadata: metadata
     });
+    
     await newWaterLevelMeasurement.save()
         .then(() => {
             res.status(201).send({
@@ -102,14 +108,14 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         })
         .then(
             (waterLevelMeasurements) => {
-                res.status(200).json({
+                res.status(200).send({
                     message: 'Water level measurements retrieved',
                     waterLevelMeasurements
                 });
             })
         .catch(
             (error) => {
-                res.status(500).json({
+                res.status(500).send({
                     message: 'Error getting water level measurements for last 24 hours',
                     error
                 });

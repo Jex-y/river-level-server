@@ -1,4 +1,4 @@
-require('dotenv-flow').config();
+require('dotenv').config();
 const supertest = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
@@ -10,7 +10,7 @@ describe('Test water level measurements API', () => {
     let db = mongoose;
     let mongod;
 
-    server = supertest(app);
+    let server = supertest(app);
 
     beforeAll(async () => {
         mongod = await MongoMemoryServer.create();
@@ -46,7 +46,7 @@ describe('Test water level measurements API', () => {
     });
 
     test('Test water level measurement retrieval for last 24 hours', async () => {
-        const now = new Date()
+        const now = new Date();
         const testMeasurement1 = new waterLevelMeasurement({
             timestamp: new Date(new Date().setMinutes(now.getMinutes() - 1)),
             waterLevel: 0.4,
@@ -76,7 +76,7 @@ describe('Test water level measurements API', () => {
             }
         });
 
-        await testMeasurement3.save()
+        await testMeasurement3.save();
 
         const response = await server.get('/api/waterLevelMeasurement/last24Hours');
         expect(response.statusCode).toBe(200);
