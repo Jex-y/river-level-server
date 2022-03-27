@@ -16,7 +16,7 @@ const {
 } = process.env;
 
 const db_uri = `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin`;
-
+console.log(db_uri);
 mongoose.connect(
     db_uri,
     { useNewUrlParser: true, useUnifiedTopology: true })

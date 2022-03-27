@@ -122,4 +122,10 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         );
 });
 
+router.get('health', (req, res) => {
+    res.status(200).send({
+        message: 'Health check successful'
+    });
+});
+
 module.exports = router;
