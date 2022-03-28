@@ -122,6 +122,58 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         );
 });
 
+// Return latest water level measurement
+/**
+ * @api {get} /waterLevelMeasurement/latest Get latest water level measurement
+ * @apiName GetLatestWaterLevelMeasurement
+ * @apiGroup WaterLevelMeasurement
+ * @apiVersion 1.0.0
+ * 
+ * @apiSuccess {Object} waterLevelMeasurement Latest water level measurement
+ * @apiSuccess {Date} waterLevelMeasurement.timestamp Timestamp of water level measurement
+ * @apiSuccess {Number} waterLevelMeasurement.waterLevel Water level of water level measurement
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTP/1.1 201 OK
+ * {
+ *     "timestamp": "2020-04-01T00:00:00.000Z",
+ *     "waterLevel": 0.5,
+ * }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *  HTTP/1.1 500 Internal Server Error
+ * {
+ *     "message": "Error getting latest water level measurement"
+ * }
+ * 
+**/
+
+router.get('/waterLevelMeasurement/latest', async (req, res) => {
+    await waterLevelMeasurement.findOne(
+        {},
+        {
+            metadata: 0,
+        })
+        .sort({
+            timestamp: -1
+        })
+        .then(
+            (waterLevelMeasurement) => {
+                res.status(200).send({
+                    message: 'Latest water level measurement retrieved',
+                    waterLevelMeasurement
+                });
+            })
+        .catch(
+            (error) => {
+                res.status(500).send({
+                    message: 'Error retrieving latest water level measurement',
+                    error
+                });
+            }
+        );
+});
+
 router.get('/health', (req, res) => {
     res.status(200).send({
         message: 'Health check successful'
