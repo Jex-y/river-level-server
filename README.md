@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/Jex-y/river-level-server/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/Jex-y/river-level-server/actions/workflows/codeql-analysis.yml)
 [![Deploy to Amazon ECS](https://github.com/Jex-y/river-level-server/actions/workflows/aws.yml/badge.svg)](https://github.com/Jex-y/river-level-server/actions/workflows/aws.yml)
 
-The project is deployed at [river-level.edjex.net](http://river-level-edjex.net)
+The project is deployed at [river-level.edjex.net](http://river-level.edjex.net)
 It is designed to:
 
 - Receive water level measurements from and IoT device
