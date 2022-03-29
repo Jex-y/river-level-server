@@ -6,7 +6,6 @@ const api = require('./routes/api');
 
 const app = express();
 
-console.log('Starting logger');
 app.use(morgan('dev'));
 
 app.use(express.json());
@@ -18,7 +17,6 @@ const apiRateLimit = rateLimit({
 });
 
 app.use('/api', apiRateLimit, api);
-
-
+app.use('/docs', express.static('docs'));
 
 module.exports = app;
