@@ -1,8 +1,9 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
-
+const path = require('path');
 const api = require('./routes/api');
+const downloads = require('./routes/downloads');
 
 const app = express();
 
@@ -16,7 +17,15 @@ const apiRateLimit = rateLimit({
     message: 'Too many requests, please try again later.',
 });
 
+app.use(express.static(path.join(__dirname, './static'),
+    {
+        extensions: ['html'],
+        index: 'index.html'
+    }
+));
+
 app.use('/api', apiRateLimit, api);
+app.use('/downloads', apiRateLimit, downloads);
 app.use('/docs', express.static('docs'));
 
 module.exports = app;
