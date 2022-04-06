@@ -2,7 +2,7 @@
   "name": "river-level-server",
   "version": "0.1.0",
   "description": "A server to provide an API and front end to monitor river level measurements",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
     "pretest": "npx eslint --fix ./src ./tests",
     "test": "jest --coverage",
