@@ -16,7 +16,9 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
     });
 
-    res.status(200).send(csv.join('\n'));
+    res.status(200)
+        .attachment('waterLevelMeasurementsLast24Hours.csv')
+        .send(csv.join('\n'));
 });
 
 // Generate a csv file with all water level measurements
@@ -27,7 +29,9 @@ router.get('/waterLevelMeasurement/all', async (req, res) => {
         return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
     });
     
-    res.status(200).send(csv.join('\n'));
+    res.status(200)
+        .attachment('waterLevelMeasurementsAllTime.csv')
+        .send(csv.join('\n'));
 });
 
 module.exports = router;
