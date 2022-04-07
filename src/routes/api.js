@@ -70,14 +70,22 @@ router.post('/waterLevelMeasurement', async (req, res) => {
  * @apiSuccessExample {json} Success-Response:
  *    HTTP/1.1 201 OK
  * [
- *   {
+ *     {
  *     "timestamp": "2020-04-01T00:00:00.000Z",
- *    "waterLevel": 0.5
+ *    "waterLevel": 0.5,
+ *   "metadata": {
+ *    "rawReading" : 1.8,
+ *      "sensorTime" : "2020-04-01T00:00:00.000Z",
+ *      }
  *   },
  *   {
  *      "timestamp": "2020-04-01T01:00:00.000Z",
- *      "waterLevel": 0.5
- *   }
+ *      "waterLevel": 0.5,
+ *      "metadata": {
+ *          "rawReading" : 1.8,
+ *          "sensorTime" : "2020-04-01T01:00:00.000Z",
+ *          }
+ *  }
  * ]
  * 
  * @apiErrorExample {json} Error-Response:
@@ -95,7 +103,7 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
             }
         },
         {
-            metadata: 0
+            metadata: 0,
         })
         .then(
             (waterLevelMeasurements) => {
@@ -162,7 +170,6 @@ router.get('/waterLevelMeasurement/latest', async (req, res) => {
                     message: 'Error retrieving latest water level measurement',
                     error
                 });
-                console.error(error);
             }
         );
 }); 
