@@ -23,7 +23,7 @@ mongoose.connect(
 
 require('greenlock-express').init({
     packageRoot: path.join(__dirname, '../'),
-    configDir: path.join(__dirname, '../greenlock.d'),
+    configDir: './greenlock.d',
     maintainerEmail: 'edward.j.jex@durham.ac.uk',
     cluster: false
 }).serve(app);
