@@ -1,13 +1,9 @@
-require('dotenv').config();
-
-const http = require('http');
 const mongoose = require('mongoose');
-
+const path = require('path');
 const app = require('./app');
 
+
 const {
-    PORT_HTTP,
-    PORT_HTTPS,
     DB_HOST,
     DB_NAME,
     DB_USER,
@@ -25,12 +21,9 @@ mongoose.connect(
         process.exit(1);
     });
 
-const server = http.createServer(app);
-
-server.listen(
-    PORT_HTTP,
-    () => {
-        console.log(`Server started. Listening on http://${server.address().address}:${PORT_HTTP}`);
-    });
-
-module.exports = { server };
+require('greenlock-express').init({
+    packageRoot: path.join(__dirname, '../'),
+    configDir: './greenlock.d',
+    maintainerEmail: 'edward.j.jex@durham.ac.uk',
+    cluster: false
+}).serve(app);

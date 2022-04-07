@@ -16,6 +16,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-rate-limit": "^6.3.0",
+    "greenlock-express": "^4.0.3",
     "mongoose": "^6.2.8",
     "morgan": "^1.10.0"
   },
@@ -26,7 +27,7 @@
     "mongodb-memory-server": "^8.4.1",
     "supertest": "^6.2.2"
   },
-  "apidoc" : {
+  "apidoc": {
     "title": "River Level API",
     "url": "http://river-level.edjex.net"
   }
