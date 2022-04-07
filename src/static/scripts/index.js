@@ -1,4 +1,5 @@
 /* global Chart */
+/* global moment */
 
 // Get the water level measurements for the last 24 hours
 
@@ -34,7 +35,7 @@ window.addEventListener('load', async () => {
         },
         options: {
             scales: {
-                y: {
+                yAxes: {
                     max: config.maxWaterLevel,
                     min: 0,
                     ticks: {
@@ -43,7 +44,7 @@ window.addEventListener('load', async () => {
                         }
                     }
                 },
-                x: {
+                xAxes: {
                     type: 'time',
                     max: new Date(),
                     min: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -53,6 +54,18 @@ window.addEventListener('load', async () => {
                         displayFormats: {
                             hour: 'HH:mm'
                         },
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            return moment(context.raw.x).format('HH:mm') + ' - ' + context.raw.y.toFixed(2) + 'm';
+                        },
+                        title: (items) => {
+                            return items[0].dataset.label;
+                        }
                     }
                 }
             }
