@@ -1,0 +1,27 @@
+{
+  "defaults": {
+    "store": {
+      "baseBath": "/certs",
+      "module": "greenlock-store-fs"
+    },
+    "challenges": {
+      "http-01": {
+        "module": "acme-http-01-standalone"
+      }
+    },
+    "renewOffset": "-45d",
+    "renewStagger": "3d",
+    "accountKeyType": "EC-P256",
+    "serverKeyType": "RSA-2048"
+  },
+  "sites": [
+    {
+      "subject": "edjex.net",
+      "altnames": [
+        "edjex.net",
+        "river-level.edjex.net"
+      ],
+      "renewAt": 1
+    }
+  ]
+}
