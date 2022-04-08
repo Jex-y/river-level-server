@@ -8,30 +8,18 @@ const config = {
     juniorsLimit: 0.775,
     universityLimit: 0.65,
     landingStages: 0.44,
-    maxWaterLevel: 1.0
+    maxWaterLevel: 1.0,
+    govStationId: '0240120'
 };
 
 window.addEventListener('load', async () => {
-    const waterLevelMeasurements = await getWaterLevelMeasurements();
     const ctx = document.getElementById('riverLevelChart').getContext('2d');
     // Chart with labels every hour
 
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            datasets: [{
-                label: 'Water level',
-                data: waterLevelMeasurements.map(waterLevelMeasurement => ({
-                    y: waterLevelMeasurement.waterLevel,
-                    x: waterLevelMeasurement.timestamp
-                })),
-                backgroundColor: 'rgba(0, 0, 0, 0)',
-                borderColor: 'rgba(0, 0, 0, 1)',
-                borderWidth: 1,
-                pointRadius: 0,
-                lineTension: 0,
-                fill: false
-            }]
+            datasets: []
         },
         options: {
             scales: {
@@ -71,6 +59,30 @@ window.addEventListener('load', async () => {
             }
         }
     });
+
+    getWaterLevelMeasurements().then((measurements) => {
+        chart.data.datasets.push({
+            label: 'Data from sensor',
+            data: measurements.map(measurement => ({
+                y: measurement.waterLevel,
+                x: measurement.timestamp
+            })),
+            lineTension: 0,
+        });
+        chart.update();
+    });
+
+    getMeasurementsFromGovAPI().then((data) => {
+        const measurements = data.items;
+        chart.data.datasets.push({
+            label: 'Data from flooding API',
+            data: measurements.map(measurement => ({
+                y: measurement.value,
+                x: measurement.dateTime
+            })),
+        });
+        chart.update();
+    });
 });
 
 async function getWaterLevelMeasurements() {
@@ -105,4 +117,27 @@ async function getWaterLevelMeasurements() {
     //             });
     //         }
     //     });
+}
+
+async function getMeasurementsFromGovAPI() {
+    // Get last 24 hours of data
+    const url = `https://environment.data.gov.uk/flood-monitoring/id/stations/${config.govStationId}/readings?since=${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}`;
+    
+    const options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    };
+
+    return fetch(url, options)
+        .then(response => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                return response.json().then(error => {
+                    console.error(error);
+                });
+            }
+        });
 }
