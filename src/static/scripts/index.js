@@ -1,36 +1,39 @@
 /* global Chart */
+/* global moment */
 
 // Get the water level measurements for the last 24 hours
 
 const config = {
-    overallLimit: 0.95,
-    juniorsLimit: 0.775,
-    universityLimit: 0.65,
-    landingStages: 0.44,
-    maxWaterLevel: 1.0
+    maxWaterLevel: 1.0,
+    govStationId: '0240120',
+    limits: [
+        {
+            name: 'Overall Limit',
+            limit: 0.95,
+        },
+        {
+            name: 'Juniors Limit',
+            limit: 0.775,
+        },
+        {
+            name: 'University Limit',
+            limit: 0.65,
+        },
+        {
+            name: 'Landing Stages',
+            limit: 0.44,
+        },
+    ]
 };
 
 window.addEventListener('load', async () => {
-    const waterLevelMeasurements = await getWaterLevelMeasurements();
     const ctx = document.getElementById('riverLevelChart').getContext('2d');
     // Chart with labels every hour
 
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            datasets: [{
-                label: 'Water level',
-                data: waterLevelMeasurements.map(waterLevelMeasurement => ({
-                    y: waterLevelMeasurement.waterLevel,
-                    x: waterLevelMeasurement.timestamp
-                })),
-                backgroundColor: 'rgba(0, 0, 0, 0)',
-                borderColor: 'rgba(0, 0, 0, 1)',
-                borderWidth: 1,
-                pointRadius: 0,
-                lineTension: 0,
-                fill: false
-            }]
+            datasets: []
         },
         options: {
             scales: {
@@ -55,8 +58,65 @@ window.addEventListener('load', async () => {
                         },
                     }
                 }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            return moment(context.raw.x).format('HH:mm') + ' - ' + context.raw.y.toFixed(2) + 'm';
+                        },
+                        title: (items) => {
+                            return items[0].dataset.label;
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: config.limits.map((limit) => ({
+                        type: 'line',
+                        mode: 'horizontal',
+                        scaleID: 'y',
+                        value: limit.limit,
+                        borderWidth: 2,
+                        label: {
+                            content: limit.name,
+                            enabled: true,
+                            position: 'start',
+                        }
+                    }))
+                }
             }
         }
+    });
+
+    getWaterLevelMeasurements().then((measurements) => {
+        chart.data.datasets.push({
+            label: 'Data from sensor',
+            data: measurements.map(measurement => ({
+                y: measurement.waterLevel,
+                x: measurement.timestamp
+            })),
+            lineTension: 0,
+            borderColor: '#0FF4C6',
+            pointRadius: 0,
+            pointHitRadius: 5,
+        });
+        chart.update();
+    });
+
+    getMeasurementsFromGovAPI().then((data) => {
+        const measurements = data.items;
+        chart.data.datasets.push({
+            label: 'Data from Environment Agency',
+            data: measurements.map(measurement => ({
+                y: measurement.value,
+                x: measurement.dateTime
+            })),
+            lineTension: 0,
+            borderColor: '#FF01FB',
+            pointRadius: 0,
+            pointHitRadius: 5,
+        });
+        chart.update();
     });
 });
 
@@ -70,10 +130,10 @@ async function getWaterLevelMeasurements() {
     };
 
     const dummyData = [];
-    const n = 100;
+    const n = 1000;
     let last = Math.random() * config.maxWaterLevel;
     for (let i = 0; i < n; i++) {
-        let next = Math.max(0, Math.min(last + (Math.random() - 0.5) * 0.1, config.maxWaterLevel));
+        let next = Math.max(0, Math.min(last + (Math.random() - 0.5) * 0.01, config.maxWaterLevel));
         dummyData.push({
             timestamp: new Date(Date.now() - (i/n) * 24 * 60 * 60 * 1000),
             waterLevel: next
@@ -92,4 +152,27 @@ async function getWaterLevelMeasurements() {
     //             });
     //         }
     //     });
+}
+
+async function getMeasurementsFromGovAPI() {
+    // Get last 24 hours of data
+    const url = `https://environment.data.gov.uk/flood-monitoring/id/stations/${config.govStationId}/readings?since=${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}`;
+    
+    const options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    };
+
+    return fetch(url, options)
+        .then(response => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                return response.json().then(error => {
+                    console.error(error);
+                });
+            }
+        });
 }
