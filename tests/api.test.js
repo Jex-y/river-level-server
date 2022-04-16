@@ -182,13 +182,13 @@ describe('Test water level measurements API', () => {
             }
         });
 
-        const response = await server.get('/api/waterLevelMeasurement/averageLast24Hours');
+        const response = await server.get('/api/waterLevelMeasurement/last24Hours/average');
         expect(response.statusCode).toBe(200);
         expect(response.body.averageWaterLevel).toBe(0.45);
     });
 
     test('Test average water level measurement retrieval for last 24 hours without data', async () => {
-        const response = await server.get('/api/waterLevelMeasurement/averageLast24Hours');
+        const response = await server.get('/api/waterLevelMeasurement/last24Hours/average');
         expect(response.statusCode).toBe(500);
         expect(response.body.averageWaterLevel).toBeUndefined();   
     });     

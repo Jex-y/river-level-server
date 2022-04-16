@@ -47,7 +47,6 @@ router.post('/waterLevelMeasurement', async (req, res) => {
             });
         })
         .catch((error) => {
-            console.error(error);
             res.status(500).send({
                 message: 'Error saving water level measurement',
                 error
@@ -173,6 +172,63 @@ router.get('/waterLevelMeasurement/latest', async (req, res) => {
             }
         );
 }); 
+
+// Get average water level for last 24 hours
+/** 
+ * @api {get} /waterLevelMeasurement/last24Hours/average Get average water level for last 24 hours
+ * @apiName GetAverageWaterLevelForLast24Hours
+ * @apiGroup WaterLevelMeasurement
+ * @apiVersion 0.1.0
+ * 
+ * @apiSuccess {Number} averageWaterLevel Average water level for last 24 hours
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *  HTTP/1.1 201 OK
+ * {
+ *    "averageWaterLevel": 0.5
+ * }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "message": "Error getting average water level for last 24 hours"
+ * }
+*/
+
+router.get('/waterLevelMeasurement/last24Hours/average', async (req, res) => {
+    await waterLevelMeasurement.aggregate([
+        {
+            $match: {
+                timestamp: {
+                    $gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                averageWaterLevel: {
+                    $avg: '$waterLevel'
+                }
+            }
+        }
+    ])
+        .then(
+            (result) => {
+                res.status(200).send({
+                    averageWaterLevel: result[0].averageWaterLevel
+                });
+            }
+        )
+        .catch(
+            (error) => {
+                res.status(500).send({
+                    message: 'Error getting average water level for last 24 hours',
+                    error
+                });
+            }
+        );
+});
 
 /**
  * @api {get} /health
