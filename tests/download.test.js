@@ -76,9 +76,12 @@ describe('Test CSV generation for downloads', () => {
             },
         });
 
-        const csv = measurements.map((measurement) => {
-            return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
-        });
+        const csv = [
+            'timestamp,water level',
+            ...measurements.map((measurement) => {
+                return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
+            }),
+        ];
 
         const response = await server.get('/downloads/waterLevelMeasurement/last24Hours');
         expect(response.statusCode).toBe(200);
@@ -119,9 +122,13 @@ describe('Test CSV generation for downloads', () => {
         await testMeasurement3.save();
 
         const measurements = await waterLevelMeasurement.find({});
-        const csv = measurements.map((measurement) => {
-            return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
-        });
+        
+        const csv = [
+            'timestamp,water level',
+            ...measurements.map((measurement) => {
+                return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
+            }),
+        ];
 
         const response = await server.get('/downloads/waterLevelMeasurement/all');
         expect(response.statusCode).toBe(200);
