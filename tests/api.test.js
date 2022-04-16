@@ -151,6 +151,47 @@ describe('Test water level measurements API', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.waterLevelMeasurements).toHaveLength(0);
     });
+
+    test('Test average water level measurement retrieval for last 24 hours', async () => {
+        const now = new Date();
+        const testMeasurement1 = new waterLevelMeasurement({
+            timestamp: new Date(new Date().setMinutes(now.getMinutes() - 1)),
+            waterLevel: 0.4,
+            metadata: {
+                example: 'Some data',
+            }
+        });
+
+        await testMeasurement1.save();
+
+        const testMeasurement2 = new waterLevelMeasurement({
+            timestamp: new Date(),
+            waterLevel: 0.5,
+            metadata: {
+                example: 'Some more data',
+            }
+        });
+
+        await testMeasurement2.save();
+
+        const testMeasurement3 = new waterLevelMeasurement({
+            timestamp: new Date().setDate(now.getDate() - 1),
+            waterLevel: 0.6,
+            metadata: {
+                example: 'Even more data'
+            }
+        });
+
+        const response = await server.get('/api/waterLevelMeasurement/averageLast24Hours');
+        expect(response.statusCode).toBe(200);
+        expect(response.body.averageWaterLevel).toBe(0.45);
+    });
+
+    test('Test average water level measurement retrieval for last 24 hours without data', async () => {
+        const response = await server.get('/api/waterLevelMeasurement/averageLast24Hours');
+        expect(response.statusCode).toBe(500);
+        expect(response.body.averageWaterLevel).toBeUndefined();   
+    });     
 });
 
 describe('Test health check API', () => {
