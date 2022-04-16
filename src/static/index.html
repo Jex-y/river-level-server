@@ -13,8 +13,8 @@
 </head>
 
 <body class="bg-dark text-white">
-  <div class="container-fluid px-5">
-    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 mt-3">
+  <div class="container-fluid">
+    <header class="d-flex flex-wrap justify-content-center p-3 mb-4 mt-2">
       <div class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-light text-decoration-none">
         <h2>River Wear Water Level</h2>
       </div>
@@ -26,7 +26,8 @@
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDarkDropdownMenuLink" role="button"
             data-bs-toggle="dropdown" aria-expanded="false">
-            Data Downloads
+            <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><g><rect fill="none" height="24" width="24"/></g><g><path d="M18,15v3H6v-3H4v3c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2v-3H18z M17,11l-1.41-1.41L13,12.17V4h-2v8.17L8.41,9.59L7,11l5,5 L17,11z"/></g></svg>
+            Data
           </a>
           <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
             <li><a class="dropdown-item" href="/downloads/waterLevelMeasurement/last24Hours" download>Last 24 Hours</a>
@@ -40,12 +41,62 @@
       </ul>
     </header>
   </div>
-  <div class="container">
-    <canvas id="riverLevelChart" class="my-4 w-100 charjs-render-monitor"></canvas>
+
+  <div class="container mb-5 pb-3">
+    <div class="row-cols-lg-auto row mx-2">
+      <div class="card bg-dark shadow-lg m-2 col-lg-12" style="min-height: 250px;">
+        <canvas id="riverLevelChart" class="charjs-render-monitor"></canvas>
+      </div>
+      <div class="card bg-dark shadow-lg col-lg-2 m-2">
+        <div class="card-body">
+          <h5 class="card-title">Latest Measurement</h5>
+          <p class="card-text">
+          <div class="row">
+            <div class="col-md-6">
+              <p>Level:</p>
+            </div>
+            <div class="col-md-6">
+              <p id="latestLevel">-</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <p>Date:</p>
+            </div>
+            <div class="col-md-6">
+              <p id="latestDate">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card bg-dark shadow-lg col-lg-2 m-2">
+        <div class="card-body">
+          <h5 class="card-title">Average Measurement</h5>
+          <p class="card-text">
+          <div class="row">
+            <div class="col-md-6">
+              <p>Level:</p>
+            </div>
+            <div class="col-md-6">
+              <p id="averageLevel">-</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <p>Date:</p>
+            </div>
+            <div class="col-md-6">
+              <p id="averageDate">-</p>
+            </div>
+          </div>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="container-fluid fixed-bottom px-5">
-    <footer class="d-flex flex-wrap justify-content-end align-items-center py-3 my-4">
+  <div class="container-fluid fixed-bottom bg-dark shadow-lg">
+    <footer class="d-flex flex-wrap justify-content-end align-items-center px-3 py-1 my-2">
       <ul class="nav col-md-4 justify-content-end">
         <li class="nav-item">
           <a href="https://github.com/Jex-y/river-level-server" class="nav-link px-2 text-muted">Github</a>
