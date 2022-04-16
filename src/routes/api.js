@@ -62,30 +62,41 @@ router.post('/waterLevelMeasurement', async (req, res) => {
  * @apiVersion 0.1.0
  * 
  * @apiSuccess {Object[]} waterLevelMeasurements Water level measurements for last 24 hours
- * @apiSuccess {Date} waterLevelMeasurements.timestamp Timestamp of water level measurement
- * @apiSuccess {Number} waterLevelMeasurements.waterLevel Water level of water level measurement
- * @apiSuccess {Object} waterLevelMeasurements.metadata Metadata of water level measurement
+ * @apiSuccess {Date} waterLevelMeasurements[].timestamp Timestamp of the water level measurement
+ * @apiSuccess {Number} waterLevelMeasurements[].waterLevel Water level measurement
+ * @apiSuccess {Object} waterLevelMeasurements[].metadata Metadata associated with the water level measurement
+ * @apiSuccess {Object} summary Summary of the water level measurements for last 24 hours
+ * @apiSuccess {Number} summary.min Minimum water level measurement
+ * @apiSuccess {Number} summary.max Maximum water level measurement
+ * @apiSuccess {Number} summary.average Average water level measurement
+ * @apiSuccess {Number} summary.count Number of water level measurements
  * 
  * @apiSuccessExample {json} Success-Response:
- *    HTTP/1.1 201 OK
- * [
- *     {
- *     "timestamp": "2020-04-01T00:00:00.000Z",
- *    "waterLevel": 0.5,
- *   "metadata": {
- *    "rawReading" : 1.8,
- *      "sensorTime" : "2020-04-01T00:00:00.000Z",
- *      }
- *   },
- *   {
- *      "timestamp": "2020-04-01T01:00:00.000Z",
- *      "waterLevel": 0.5,
- *      "metadata": {
- *          "rawReading" : 1.8,
- *          "sensorTime" : "2020-04-01T01:00:00.000Z",
- *          }
- *  }
- * ]
+ *   HTTP/1.1 200 OK
+ *  {
+ *     "waterLevelMeasurements": [
+ *         {
+ *              "timestamp": "2019-01-01T00:00:00.000Z",
+ *              "waterLevel": 0.4,
+ *              "metadata": {
+ *                  "example": "Some data"
+ *              }
+ *         },
+ *         {
+ *             "timestamp": "2019-01-01T00:01:00.000Z",
+ *             "waterLevel": 0.5,
+ *             "metadata": {
+ *                 "example": "Some more data"
+ *             }
+ *         }
+ *     ],
+ *     "summary": {
+ *         "min": 0.4,
+ *         "max": 0.5,
+ *         "average": 0.45,
+ *         "count": 2
+ *     }
+ * }
  * 
  * @apiErrorExample {json} Error-Response:
  *   HTTP/1.1 500 Internal Server Error
@@ -95,7 +106,7 @@ router.post('/waterLevelMeasurement', async (req, res) => {
  * 
 **/
 router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
-    await waterLevelMeasurement.find(
+    const all = waterLevelMeasurement.find(
         {
             timestamp: {
                 $gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -103,21 +114,48 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         },
         {
             metadata: 0,
-        })
-        .then(
-            (waterLevelMeasurements) => {
-                res.status(200).send({
-                    message: 'Water level measurements retrieved',
-                    waterLevelMeasurements
-                });
-            })
-        .catch(
-            (error) => {
-                res.status(500).send({
-                    message: 'Error retrieving water level measurements',
-                    error
-                });
+        });
+
+    const summary = waterLevelMeasurement.aggregate([
+        {
+            $match: {
+                timestamp: {
+                    $gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
+                }
             }
+        },
+        {
+            $group: {
+                _id: null,
+                average: {
+                    $avg: '$waterLevel'
+                },
+                min: {
+                    $min: '$waterLevel'
+                },
+                max: {
+                    $max: '$waterLevel'
+                },
+                count: {
+                    $sum: 1
+                },
+            }
+        }
+    ]);
+
+    Promise.all([all, summary])
+        .then(([all, summary]) => {
+            res.status(200).send({
+                waterLevelMeasurements: all,
+                summary: summary[0]
+            });
+        })        
+        .catch((error) => {
+            res.status(500).send({
+                message: 'Error getting water level measurements for last 24 hours',
+                error
+            });
+        }
         );
 });
 
@@ -172,63 +210,6 @@ router.get('/waterLevelMeasurement/latest', async (req, res) => {
             }
         );
 }); 
-
-// Get average water level for last 24 hours
-/** 
- * @api {get} /waterLevelMeasurement/last24Hours/average Get average water level for last 24 hours
- * @apiName GetAverageWaterLevelForLast24Hours
- * @apiGroup WaterLevelMeasurement
- * @apiVersion 0.1.0
- * 
- * @apiSuccess {Number} averageWaterLevel Average water level for last 24 hours
- * 
- * @apiSuccessExample {json} Success-Response:
- *  HTTP/1.1 201 OK
- * {
- *    "averageWaterLevel": 0.5
- * }
- * 
- * @apiErrorExample {json} Error-Response:
- * HTTP/1.1 500 Internal Server Error
- * {
- *   "message": "Error getting average water level for last 24 hours"
- * }
-*/
-
-router.get('/waterLevelMeasurement/last24Hours/average', async (req, res) => {
-    await waterLevelMeasurement.aggregate([
-        {
-            $match: {
-                timestamp: {
-                    $gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
-                }
-            }
-        },
-        {
-            $group: {
-                _id: null,
-                averageWaterLevel: {
-                    $avg: '$waterLevel'
-                }
-            }
-        }
-    ])
-        .then(
-            (result) => {
-                res.status(200).send({
-                    averageWaterLevel: result[0].averageWaterLevel
-                });
-            }
-        )
-        .catch(
-            (error) => {
-                res.status(500).send({
-                    message: 'Error getting average water level for last 24 hours',
-                    error
-                });
-            }
-        );
-});
 
 /**
  * @api {get} /health
