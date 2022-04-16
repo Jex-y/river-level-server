@@ -26,6 +26,8 @@ const config = {
     ]
 };
 
+const MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 window.addEventListener('load', async () => {
     const ctx = document.getElementById('riverLevelChart').getContext('2d');
     // Chart with labels every hour
@@ -36,13 +38,17 @@ window.addEventListener('load', async () => {
             datasets: []
         },
         options: {
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     max: config.maxWaterLevel,
                     min: 0,
                     ticks: {
                         callback: function(value, index, values) {
-                            return value.toFixed(2);
+                            return value.toFixed(2) + 'm';
+                        },
+                        font: {
+                            size: MOBILE ? 8 : 12,
                         }
                     }
                 },
@@ -56,6 +62,11 @@ window.addEventListener('load', async () => {
                         displayFormats: {
                             hour: 'HH:mm'
                         },
+                    },
+                    ticks: {
+                        font: {
+                            size: MOBILE ? 8 : 12,
+                        }
                     }
                 }
             },
@@ -81,29 +92,49 @@ window.addEventListener('load', async () => {
                             content: limit.name,
                             enabled: true,
                             position: 'start',
+                            font: {
+                                size: MOBILE ? 8 : 12,
+                            },
                         }
                     }))
+                },
+                legend: {
+                    position: 'bottom',
+                    align: 'center',
+                    labels: {
+                        font: {
+                            size: MOBILE ? 8 : 12,
+                        }
+                    }
                 }
             }
         }
     });
 
-    getWaterLevelMeasurements().then((measurements) => {
-        chart.data.datasets.push({
-            label: 'Data from sensor',
-            data: measurements.map(measurement => ({
-                y: measurement.waterLevel,
-                x: measurement.timestamp
-            })),
-            lineTension: 0,
-            borderColor: '#0FF4C6',
-            pointRadius: 0,
-            pointHitRadius: 5,
-        });
+    getApiEndpoint('/api/waterLevelMeasurement/last24Hours').then((data) => {
+        if (data.waterLevelMeasurements.length > 0) {
+            console.log(data.waterLevelMeasurements);
+            chart.data.datasets.push({
+                label: 'Data from sensor',
+                data: data.waterLevelMeasurements.map(measurement => ({
+                    y: measurement.waterLevel,
+                    x: measurement.timestamp
+                })),
+                lineTension: 0,
+                borderColor: '#0FF4C6',
+                pointRadius: 0,
+                pointHitRadius: 5,
+            });
+        }
         chart.update();
+        document.getElementById('latestLevel').innerText = data.waterLevelMeasurements[data.waterLevelMeasurements.length - 1].waterLevel.toFixed(2) + 'm';
+        document.getElementById('latestTime').innerText = moment(data.waterLevelMeasurements[data.waterLevelMeasurements.length - 1].timestamp).format('HH:mm');
+        document.getElementById('averageLevel').innerText = data.summary.average.toFixed(2) + 'm';
+        document.getElementById('minLevel').innerText = data.summary.min.toFixed(2) + 'm';
+        document.getElementById('maxLevel').innerText = data.summary.max.toFixed(2) + 'm';
     });
 
-    getMeasurementsFromGovAPI().then((data) => {
+    getApiEndpoint(`https://environment.data.gov.uk/flood-monitoring/id/stations/${config.govStationId}/readings?since=${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}&_sorted`).then((data) => {
         const measurements = data.items;
         chart.data.datasets.push({
             label: 'Data from Environment Agency',
@@ -120,59 +151,23 @@ window.addEventListener('load', async () => {
     });
 });
 
-async function getWaterLevelMeasurements() {
-    const url = '/api/waterLevelMeasurement/last24hours';
+async function getApiEndpoint(url) {
     const options = {
         method: 'GET',
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
-        },
+        }
     };
-
-    const dummyData = [];
-    const n = 1000;
-    let last = Math.random() * config.maxWaterLevel;
-    for (let i = 0; i < n; i++) {
-        let next = Math.max(0, Math.min(last + (Math.random() - 0.5) * 0.01, config.maxWaterLevel));
-        dummyData.push({
-            timestamp: new Date(Date.now() - (i/n) * 24 * 60 * 60 * 1000),
-            waterLevel: next
-        });
-        last = next;
-    }
-    return dummyData;
-
-    // return fetch(url, options)
-    //     .then(response => {
-    //         if (response.status === 200) {
-    //             return response.json();
-    //         } else {
-    //             return response.json().then(error => {
-    //                 console.error(error);
-    //             });
-    //         }
-    //     });
-}
-
-async function getMeasurementsFromGovAPI() {
-    // Get last 24 hours of data
-    const url = `https://environment.data.gov.uk/flood-monitoring/id/stations/${config.govStationId}/readings?since=${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}`;
     
-    const options = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    };
-
-    return fetch(url, options)
-        .then(response => {
-            if (response.status === 200) {
-                return response.json();
-            } else {
-                return response.json().then(error => {
-                    console.error(error);
-                });
-            }
-        });
+    return fetch(url, options).then(response => {
+        if (response.status === 200) {
+            return response.json();
+        }
+        else {
+            return response.json().then(error => {
+                console.error(error);
+            });
+        }
+    });
 }

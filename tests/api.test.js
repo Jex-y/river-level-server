@@ -109,7 +109,13 @@ describe('Test water level measurements API', () => {
                     timestamp: testMeasurement2.timestamp.toISOString(),
                     waterLevel: testMeasurement2.waterLevel,
                 }
-            ]
+            ],
+            summary: {
+                min: 0.4,
+                max: 0.5,
+                average: 0.45,
+                count: 2,
+            }
         });
         expect(response.body.waterLevelMeasurements[0].metadata).toBeUndefined();
     });
@@ -151,6 +157,8 @@ describe('Test water level measurements API', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.waterLevelMeasurements).toHaveLength(0);
     });
+
+    
 });
 
 describe('Test health check API', () => {
@@ -191,6 +199,6 @@ describe('Test water level measurements with database error', () => {
     test('Test water level measurement retrieval with database error', async () => {
         const response = await server.get('/api/waterLevelMeasurement/last24Hours');
         expect(response.statusCode).toBe(500);
-        expect(response.body.message).toBe('Error retrieving water level measurements');
+        expect(response.body.message).toBe('Error getting water level measurements for last 24 hours');
     });
 });

@@ -12,22 +12,34 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
         },
     });
 
-    const csv = measurements.map((measurement) => {
-        return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
-    });
+    const csv = [
+        'timestamp,water level',
+        ...measurements.map((measurement) => {
+            return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
+        }),
+    ];
 
-    res.status(200).send(csv.join('\n'));
+    res.status(200)
+        .attachment('waterLevelMeasurementsLast24Hours.csv')
+        .send(csv.join('\n'));
 });
 
 // Generate a csv file with all water level measurements
 router.get('/waterLevelMeasurement/all', async (req, res) => {
     const measurements = await waterLevelMeasurement.find({});
     
-    const csv = measurements.map((measurement) => {
-        return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
-    });
-    
-    res.status(200).send(csv.join('\n'));
+    const csv = [
+        'timestamp,water level',
+        ...measurements.map((measurement) => {
+            return `${measurement.timestamp.toISOString()},${measurement.waterLevel}`;
+        }),
+    ];
+
+    console.log(csv);
+
+    res.status(200)
+        .attachment('waterLevelMeasurementsAll.csv')
+        .send(csv.join('\n'));
 });
 
 module.exports = router;
