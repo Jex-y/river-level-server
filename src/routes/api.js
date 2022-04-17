@@ -1,6 +1,6 @@
 const express = require('express');
 const waterLevelMeasurement = require('../models/waterLevelMeasurement');
-
+const crypto = require('crypto');
 const router = express.Router();
 
 // Endpoint for submitting water level measurement
@@ -31,9 +31,30 @@ const router = express.Router();
  */
 router.post('/waterLevelMeasurement', async (req, res) => {
     const {waterLevel, metadata} = req.body;
+    const hmacSignature = req.headers['x-hmac-signature'];
+    const hmacSecret = process.env.SECRET;
+
+    if (hmacSignature === undefined) {
+        return res.status(401).json({message: 'Unauthorized'});
+    } else {
+        const hmac = crypto.createHmac('sha256', hmacSecret);
+        const generatedHmac = hmac.update(JSON.stringify(req.body)).digest('hex');
+
+        console.log(req.body);
+
+        if (!crypto.timingSafeEqual(Buffer.from(hmacSignature), Buffer.from(generatedHmac))) {
+            return res.status(401).json({message: 'Unauthorized'});
+        }
+    }
+            
     if (!waterLevel) {
         return res.status(400).json({message: 'Water level is required'});
     }
+
+    if (!Number.isFinite(waterLevel)) {
+        return res.status(400).json({message: 'Water level must be a number'});
+    }
+
     const newWaterLevelMeasurement = new waterLevelMeasurement({
         timestamp: new Date(),
         waterLevel: waterLevel,

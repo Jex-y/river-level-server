@@ -1,14 +1,13 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
+const cors = require('cors');
 const path = require('path');
 const api = require('./routes/api');
 const downloads = require('./routes/downloads');
 
 const app = express();
 
-app.use(morgan('dev'));
-
+app.use(cors());
 app.use(express.json());
 
 const apiRateLimit = rateLimit({
@@ -27,5 +26,4 @@ app.use(express.static(path.join(__dirname, './static'),
 app.use('/api', apiRateLimit, api);
 app.use('/downloads', apiRateLimit, downloads);
 app.use('/docs', express.static('docs'));
-
 module.exports = app;

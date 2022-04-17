@@ -35,8 +35,6 @@ router.get('/waterLevelMeasurement/all', async (req, res) => {
         }),
     ];
 
-    console.log(csv);
-
     res.status(200)
         .attachment('waterLevelMeasurementsAll.csv')
         .send(csv.join('\n'));

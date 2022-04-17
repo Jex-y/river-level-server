@@ -2,9 +2,12 @@ require('dotenv').config();
 const supertest = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const crypto = require('crypto');
 
 const app = require('../src/app');
 const waterLevelMeasurement = require('../src/models/waterLevelMeasurement');
+
+process.env.SECRET = 'test';
 
 describe('Test water level measurements API', () => {
     let db = mongoose;
@@ -37,30 +40,137 @@ describe('Test water level measurements API', () => {
     });
 
     test('Test water level measurement submission', async () => {
+        const data = {
+            waterLevel: 4.2,
+            metadata: {
+                example1: 'Some data',
+                example2: 'Some more data'
+            }
+        };
+
+        const hmacSignature = crypto.createHmac('sha256', process.env.SECRET).update(JSON.stringify(data)).digest('hex');
+
         const response = await server.post('/api/waterLevelMeasurement')
-            .send({
-                waterLevel: 4.2,
-                metadata: {
-                    example1: 'Some data',
-                    example2: 'Some more data'
-                }
-            });
+            .send(data)
+            .set('x-hmac-signature', hmacSignature);
 
         expect(response.statusCode).toBe(201);
         expect(response.body.message).toBe('Water level measurement saved successfully');
+
+        const waterLevelMeasurements = await waterLevelMeasurement.find();
+
+        expect(waterLevelMeasurements).toHaveLength(1);
+        expect(waterLevelMeasurements[0].waterLevel).toBe(4.2);
+        expect(waterLevelMeasurements[0].metadata).toEqual({
+            example1: 'Some data',
+            example2: 'Some more data'
+        });
     });
 
-    test('Test water level measurement submission with no water level', async () => {
+    test('Test water level measurement submission with no water level or metadata', async () => {
+        const data = {
+        };
+
+        const hmacSignature = crypto.createHmac('sha256', process.env.SECRET).update(JSON.stringify(data)).digest('hex');
+
         const response = await server.post('/api/waterLevelMeasurement')
-            .send({
-                metadata: {
-                    example1: 'Some data',
-                    example2: 'Some more data'
-                }
-            });
+            .send(data)
+            .set('x-hmac-signature', hmacSignature);
+
 
         expect(response.statusCode).toBe(400);
         expect(response.body.message).toBe('Water level is required');
+
+        const waterLevelMeasurements = await waterLevelMeasurement.find();
+
+        expect(waterLevelMeasurements).toHaveLength(0);
+    });
+
+    test('Test water level measurement submission with no metadata', async () => {
+        const data = {
+            waterLevel: 4.2
+        };
+
+        const hmacSignature = crypto.createHmac('sha256', process.env.SECRET).update(JSON.stringify(data)).digest('hex');
+
+        const response = await server.post('/api/waterLevelMeasurement')
+            .send(data)
+            .set('x-hmac-signature', hmacSignature);
+
+        expect(response.statusCode).toBe(201);
+        expect(response.body.message).toBe('Water level measurement saved successfully');
+
+        const waterLevelMeasurements = await waterLevelMeasurement.find();
+
+        expect(waterLevelMeasurements).toHaveLength(1);
+        expect(waterLevelMeasurements[0].waterLevel).toBe(4.2);
+        expect(waterLevelMeasurements[0].metadata).toBeUndefined();
+    });
+
+    test('Test water level measurement submission with invalid data', async () => {
+        const data = {
+            waterLevel: 'invalid',
+            metadata: {
+                example1: 'Some data',
+                example2: 'Some more data'
+            }
+        };
+
+        const hmacSignature = crypto.createHmac('sha256', process.env.SECRET).update(JSON.stringify(data)).digest('hex');
+
+        const response = await server.post('/api/waterLevelMeasurement')
+            .send(data) 
+            .set('x-hmac-signature', hmacSignature);
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toBe('Water level must be a number');
+
+        const waterLevelMeasurements = await waterLevelMeasurement.find();
+
+        expect(waterLevelMeasurements).toHaveLength(0);
+    });
+
+    test('Test water level measurement submission with no hmac signature', async () => {
+        const data = {
+            waterLevel: 4.2,
+            metadata: {
+                example1: 'Some data',
+                example2: 'Some more data'
+            }
+        };
+
+        const response = await server.post('/api/waterLevelMeasurement')
+            .send(data);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toBe('Unauthorized');
+
+        const waterLevelMeasurements = await waterLevelMeasurement.find();
+
+        expect(waterLevelMeasurements).toHaveLength(0);
+    });
+
+    test('Test water level measurement submission with invalid hmac signature', async () => {
+        const data = {
+            waterLevel: 4.2,
+            metadata: {
+                example1: 'Some data',
+                example2: 'Some more data'
+            }
+        };
+
+        const hmacSignature = crypto.createHmac('sha256', 'wrong secret').update(JSON.stringify(data)).digest('hex');
+
+        const response = await server.post('/api/waterLevelMeasurement')
+            .send(data)
+            .set('x-hmac-signature', hmacSignature);
+
+        expect(response.statusCode).toBe(401);
+        expect(response.body.message).toBe('Unauthorized');
+
+        const waterLevelMeasurements = await waterLevelMeasurement.find();
+
+        expect(waterLevelMeasurements).toHaveLength(0);
     });
 
     test('Test water level measurement retrieval for last 24 hours', async () => {
@@ -157,7 +267,6 @@ describe('Test water level measurements API', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.waterLevelMeasurements).toHaveLength(0);
     });
-
     
 });
 
@@ -177,14 +286,19 @@ describe('Test water level measurements with database error', () => {
     let server = supertest(app);
 
     test('Test water level measurement submission with database error', async () => {
+        const data = {
+            waterLevel: 4.2,
+            metadata: {
+                example1: 'Some data',
+                example2: 'Some more data'
+            }
+        };
+
+        const hmacSignature = crypto.createHmac('sha256', process.env.SECRET).update(JSON.stringify(data)).digest('hex');
+
         const response = await server.post('/api/waterLevelMeasurement')
-            .send({
-                waterLevel: 4.2,
-                metadata: {
-                    example1: 'Some data',
-                    example2: 'Some more data'
-                }
-            });
+            .send(data)
+            .set('x-hmac-signature', hmacSignature);
 
         expect(response.statusCode).toBe(500);
         expect(response.body.message).toBe('Error saving water level measurement');
