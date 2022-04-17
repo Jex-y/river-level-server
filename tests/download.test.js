@@ -1,4 +1,3 @@
-require('dotenv').config();
 const supertest = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
