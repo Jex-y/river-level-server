@@ -113,7 +113,6 @@ window.addEventListener('load', async () => {
 
     getApiEndpoint('/api/waterLevelMeasurement/last24Hours').then((data) => {
         if (data.waterLevelMeasurements.length > 0) {
-            console.log(data.waterLevelMeasurements);
             chart.data.datasets.push({
                 label: 'Data from sensor',
                 data: data.waterLevelMeasurements.map(measurement => ({
