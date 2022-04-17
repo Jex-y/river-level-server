@@ -1,6 +1,5 @@
 .vscode
 docs/
-docker-compose.yml
 .dockerignore
 
 # Sensitive data
