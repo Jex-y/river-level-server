@@ -8,7 +8,7 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
     const now = new Date();
     const measurements = await waterLevelMeasurement.find({
         timestamp: {
-            $gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+            $gte: new Date(now - 24 * 60 * 60 * 1000),
         },
     });
 

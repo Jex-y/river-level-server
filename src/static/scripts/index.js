@@ -44,7 +44,8 @@ window.addEventListener('load', async () => {
                     max: config.maxWaterLevel,
                     min: 0,
                     ticks: {
-                        callback: function(value, index, values) {
+                        // eslint-disable-next-line no-unused-vars
+                        callback: function(value, _index, _values) {
                             return value.toFixed(2) + 'm';
                         },
                         font: {

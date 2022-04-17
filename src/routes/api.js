@@ -14,6 +14,8 @@ const router = express.Router();
  * @apiBody {Number} waterLevel Water level measurement
  * @apiBody {Object} metadata Metadata associated with the water level measurement (optional)
  * 
+ * @apiHeader {String} x-hmac-signature HMAC signature of the body of the request
+ * 
  * @apiSuccess {String} Water level measurement saved successfully
  * 
  * @apiSuccessExample {json} Success-Response:
@@ -39,8 +41,6 @@ router.post('/waterLevelMeasurement', async (req, res) => {
     } else {
         const hmac = crypto.createHmac('sha256', hmacSecret);
         const generatedHmac = hmac.update(JSON.stringify(req.body)).digest('hex');
-
-        console.log(req.body);
 
         if (!crypto.timingSafeEqual(Buffer.from(hmacSignature), Buffer.from(generatedHmac))) {
             return res.status(401).json({message: 'Unauthorized'});
