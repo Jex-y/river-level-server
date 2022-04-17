@@ -1,0 +1,8 @@
+.info-card {
+    height: 100%;
+    max-height: 180px;
+}
+
+.graph-card {
+    min-height: 250px;
+}
