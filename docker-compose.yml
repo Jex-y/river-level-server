@@ -28,12 +28,10 @@ services:
       - DB_USER=root
       - DB_PASS=password
       - DB_PORT=27017
-      - SECRET_KEY=debug
+      - SECRET=debug
     volumes:
       - type: bind
         source: ./src
         target: /app/src
-      - certs:/certs
 volumes:
   mongodb:
-  certs:
