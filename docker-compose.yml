@@ -1,0 +1,39 @@
+version: '3' # Runs the dev version of the dockerfile so that changes are reflected immediately
+services:
+  mongodb:
+    image: mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+  app:
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev  # Change this to Dockerfile for production version
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - PORT_HTTP=80
+      - PORT_HTTPS=443
+      - DB_HOST=mongodb
+      - DB_NAME=river-level
+      - DB_USER=root
+      - DB_PASS=password
+      - DB_PORT=27017
+      - SECRET_KEY=debug
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/src
+      - certs:/certs
+volumes:
+  mongodb:
+  certs:
