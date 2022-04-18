@@ -1,12 +1,10 @@
 const http = require('http');
 const mongoose = require('mongoose');
-const morgan = require('morgan');
 
 const app = require('./app');
 
 /* eslint-disable no-console */
 
-app.use(morgan('dev'));
 
 const {
     PORT_HTTP,
