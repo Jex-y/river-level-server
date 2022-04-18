@@ -9,7 +9,7 @@ const downloads = require('./routes/downloads');
 const app = express();
 
 if (!process.env.TEST) {
-    app.use(morgan('dev'));
+    app.use(morgan('short'));
 }
 
 app.use(cors());
