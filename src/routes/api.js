@@ -8,7 +8,7 @@ const router = express.Router();
  * @api {post} /api/waterLevelMeasurement Submit water level measurement
  * @apiName SubmitWaterLevelMeasurement
  * @apiGroup WaterLevelMeasurement
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiDescription Submit water level measurement
  * 
  * @apiBody {Number} waterLevel Water level measurement
@@ -80,7 +80,7 @@ router.post('/waterLevelMeasurement', async (req, res) => {
  * @api {get} /waterLevelMeasurement/last24Hours Get water level measurements for last 24 hours
  * @apiName GetWaterLevelMeasurementsForLast24Hours
  * @apiGroup WaterLevelMeasurement
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * 
  * @apiSuccess {Object[]} waterLevelMeasurements Water level measurements for last 24 hours
  * @apiSuccess {Date} waterLevelMeasurements[].timestamp Timestamp of the water level measurement
@@ -185,7 +185,7 @@ router.get('/waterLevelMeasurement/last24Hours', async (req, res) => {
  * @api {get} /waterLevelMeasurement/latest Get latest water level measurement
  * @apiName GetLatestWaterLevelMeasurement
  * @apiGroup WaterLevelMeasurement
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * 
  * @apiSuccess {Object} waterLevelMeasurement Latest water level measurement
  * @apiSuccess {Date} waterLevelMeasurement.timestamp Timestamp of water level measurement
@@ -236,7 +236,7 @@ router.get('/waterLevelMeasurement/latest', async (req, res) => {
  * @api {get} /health
  * @apiName Health
  * @apiGroup Health
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * 
  * @apiSuccessExample {json} Success-Response:
  *  HTTP/1.1 200 OK

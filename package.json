@@ -1,6 +1,6 @@
 {
   "name": "river-level-server",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A server to provide an API and front end to monitor river level measurements",
   "main": "src/server.js",
   "scripts": {
