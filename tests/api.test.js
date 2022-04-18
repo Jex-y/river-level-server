@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const crypto = require('crypto');
 
+process.env.TEST = 'true';
+
 const app = require('../src/app');
 const waterLevelMeasurement = require('../src/models/waterLevelMeasurement');
 

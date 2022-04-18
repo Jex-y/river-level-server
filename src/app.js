@@ -1,5 +1,6 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
 const api = require('./routes/api');
@@ -7,8 +8,13 @@ const downloads = require('./routes/downloads');
 
 const app = express();
 
+if (!process.env.TEST) {
+    app.use(morgan('dev'));
+}
+
 app.use(cors());
 app.use(express.json());
+
 
 const apiRateLimit = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
