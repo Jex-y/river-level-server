@@ -4,11 +4,12 @@ const morgan = require('morgan');
 
 const app = require('./app');
 
+/* eslint-disable no-console */
+
 app.use(morgan('dev'));
 
 const {
     PORT_HTTP,
-    PORT_HTTPS,
     DB_HOST,
     DB_NAME,
     DB_USER,

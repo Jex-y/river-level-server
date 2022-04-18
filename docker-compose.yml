@@ -1,7 +1,7 @@
 version: '3' # Runs the dev version of the dockerfile so that changes are reflected immediately
 services:
   mongodb:
-    image: mongo
+    image: mongo:latest
     restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
