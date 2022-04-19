@@ -44,7 +44,6 @@ window.addEventListener('load', async () => {
                     max: config.maxWaterLevel,
                     min: 0,
                     ticks: {
-                        // eslint-disable-next-line no-unused-vars
                         callback: function (value, _index, _values) {
                             return value.toFixed(2) + 'm';
                         },
@@ -128,7 +127,7 @@ window.addEventListener('load', async () => {
                 });
                 chart.update();
                 let latestMeasurement = data.waterLevelMeasurements[data.waterLevelMeasurements.length - 1];
-                updateLatestLevel(latestMeasurement.timestamp, latestMeasurement.waterLevel);
+                updateLatestLevel(latestMeasurement.waterLevel, latestMeasurement.timestamp);
 
                 document.getElementById('averageLevel').innerText = data.summary.average.toFixed(2) + 'm';
                 document.getElementById('minLevel').innerText = data.summary.min.toFixed(2) + 'm';
