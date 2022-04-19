@@ -2,6 +2,7 @@ const express = require('express');
 const waterLevelMeasurement = require('../models/waterLevelMeasurement');
 const crypto = require('crypto');
 const router = express.Router();
+const mongoose = require('mongoose');
 
 // Endpoint for submitting water level measurement
 /**
@@ -245,10 +246,28 @@ router.get('/waterLevelMeasurement/latest', async (req, res) => {
  * }
  * 
  */
-router.get('/health', (req, res) => {
-    res.status(200).send({
-        message: 'Health check successful'
-    });
+router.get('/health', async (req, res) => {
+    const adminUtil = mongoose.connection.db.admin();
+    let dbGood;
+    
+    try {
+        await adminUtil.ping();
+        dbGood = true;
+    } catch (error) {
+        dbGood = false;
+    }
+
+    if (dbGood) {
+        res.status(200).send({
+            message: 'Health check successful'
+    
+        });
+    } else {
+        res.status(500).send({
+            message: 'Database ping failed'
+        });
+    }
+
 });
 
 module.exports = router;
