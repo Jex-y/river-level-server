@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "pretest": "npx eslint --fix ./src ./tests",
-    "test": "jest --coverage",
+    "test": "jest",
+    "coverage" : "jest --coverage",
     "doc": "npx apidoc -i ./src -o ./docs",
     "start": "node src/server.js"
   },
