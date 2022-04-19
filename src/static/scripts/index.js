@@ -45,7 +45,7 @@ window.addEventListener('load', async () => {
                     min: 0,
                     ticks: {
                         // eslint-disable-next-line no-unused-vars
-                        callback: function(value, _index, _values) {
+                        callback: function (value, _index, _values) {
                             return value.toFixed(2) + 'm';
                         },
                         font: {
@@ -112,43 +112,48 @@ window.addEventListener('load', async () => {
         }
     });
 
-    getApiEndpoint('/api/waterLevelMeasurement/last24Hours').then((data) => {
-        if (data.waterLevelMeasurements.length > 0) {
+    getApiEndpoint('/api/waterLevelMeasurement/last24Hours')
+        .then((data) => {
+            if (data.waterLevelMeasurements.length > 0) {
+                chart.data.datasets.push({
+                    label: 'Data from sensor',
+                    data: data.waterLevelMeasurements.map(measurement => ({
+                        y: measurement.waterLevel,
+                        x: measurement.timestamp
+                    })),
+                    lineTension: 0,
+                    borderColor: '#0FF4C6',
+                    pointRadius: 0,
+                    pointHitRadius: 5,
+                });
+                chart.update();
+                let latestMeasurement = data.waterLevelMeasurements[data.waterLevelMeasurements.length - 1];
+                updateLatestLevel(latestMeasurement.timestamp, latestMeasurement.waterLevel);
+
+                document.getElementById('averageLevel').innerText = data.summary.average.toFixed(2) + 'm';
+                document.getElementById('minLevel').innerText = data.summary.min.toFixed(2) + 'm';
+                document.getElementById('maxLevel').innerText = data.summary.max.toFixed(2) + 'm';
+            }
+        });
+
+    getApiEndpoint(`https://environment.data.gov.uk/flood-monitoring/id/stations/${config.govStationId}/readings?since=${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}&_sorted`)
+        .then((data) => {
+            const measurements = data.items;
             chart.data.datasets.push({
-                label: 'Data from sensor',
-                data: data.waterLevelMeasurements.map(measurement => ({
-                    y: measurement.waterLevel,
-                    x: measurement.timestamp
+                label: 'Data from Environment Agency',
+                data: measurements.map(measurement => ({
+                    y: measurement.value,
+                    x: measurement.dateTime
                 })),
                 lineTension: 0,
-                borderColor: '#0FF4C6',
+                borderColor: '#FF01FB',
                 pointRadius: 0,
                 pointHitRadius: 5,
             });
-        }
-        chart.update();
-        document.getElementById('latestLevel').innerText = data.waterLevelMeasurements[data.waterLevelMeasurements.length - 1].waterLevel.toFixed(2) + 'm';
-        document.getElementById('latestTime').innerText = moment(data.waterLevelMeasurements[data.waterLevelMeasurements.length - 1].timestamp).format('HH:mm');
-        document.getElementById('averageLevel').innerText = data.summary.average.toFixed(2) + 'm';
-        document.getElementById('minLevel').innerText = data.summary.min.toFixed(2) + 'm';
-        document.getElementById('maxLevel').innerText = data.summary.max.toFixed(2) + 'm';
-    });
-
-    getApiEndpoint(`https://environment.data.gov.uk/flood-monitoring/id/stations/${config.govStationId}/readings?since=${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}&_sorted`).then((data) => {
-        const measurements = data.items;
-        chart.data.datasets.push({
-            label: 'Data from Environment Agency',
-            data: measurements.map(measurement => ({
-                y: measurement.value,
-                x: measurement.dateTime
-            })),
-            lineTension: 0,
-            borderColor: '#FF01FB',
-            pointRadius: 0,
-            pointHitRadius: 5,
+            chart.update();
+            let latestMeasurement = measurements[measurements.length - 1];
+            updateLatestLevel(latestMeasurement.value, latestMeasurement.dateTime);
         });
-        chart.update();
-    });
 });
 
 async function getApiEndpoint(url) {
@@ -159,7 +164,7 @@ async function getApiEndpoint(url) {
             'Content-Type': 'application/json',
         }
     };
-    
+
     return fetch(url, options).then(response => {
         if (response.status === 200) {
             return response.json();
@@ -170,4 +175,14 @@ async function getApiEndpoint(url) {
             });
         }
     });
+}
+
+function updateLatestLevel(level, time) {
+    if (!updateLatestLevel.latestTime || time > updateLatestLevel.latestTime) {
+        updateLatestLevel.latestTime = time;
+
+        document.getElementById('latestLevel').innerText = level.toFixed(2) + 'm';
+        document.getElementById('latestTime').innerText = moment(time).format('HH:mm');
+    }
+
 }
