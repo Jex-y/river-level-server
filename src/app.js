@@ -9,7 +9,7 @@ const downloads = require('./routes/downloads');
 const app = express();
 
 app.use(morgan('short', {
-    skip: (req, _res) => process.env.TEST || req.url === '/api/health'
+    skip: (req, _res) => process.env.TEST || req.originalUrl === '/api/health' 
 }));
 
 app.use(cors());
