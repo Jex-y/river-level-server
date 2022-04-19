@@ -268,11 +268,6 @@ describe('Test water level measurements API', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.waterLevelMeasurements).toHaveLength(0);
     });
-    
-});
-
-describe('Test health check API', () => {
-    let server = supertest(app);
 
     test('Test health check', async () => {
         const response = await server.get('/api/health');
@@ -281,6 +276,7 @@ describe('Test health check API', () => {
             message: 'Health check successful'
         });
     });
+    
 });
 
 describe('Test water level measurements with database error', () => {
@@ -315,5 +311,11 @@ describe('Test water level measurements with database error', () => {
         const response = await server.get('/api/waterLevelMeasurement/last24Hours');
         expect(response.statusCode).toBe(500);
         expect(response.body.message).toBe('Error getting water level measurements for last 24 hours');
+    });
+
+    test('Test health check with database error', async () => {
+        const response = await server.get('/api/health');
+        expect(response.statusCode).toBe(500);
+        expect(response.body.message).toBe('Database ping failed');
     });
 });
