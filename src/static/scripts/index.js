@@ -150,7 +150,7 @@ window.addEventListener('load', async () => {
                 pointHitRadius: 5,
             });
             chart.update();
-            let latestMeasurement = measurements[measurements.length - 1];
+            let latestMeasurement = measurements[0];
             updateLatestLevel(latestMeasurement.value, latestMeasurement.dateTime);
         });
 });
@@ -177,6 +177,7 @@ async function getApiEndpoint(url) {
 }
 
 function updateLatestLevel(level, time) {
+    console.log(level, time);
     if (!updateLatestLevel.latestTime || time > updateLatestLevel.latestTime) {
         updateLatestLevel.latestTime = time;
 
