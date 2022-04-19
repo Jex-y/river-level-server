@@ -34,7 +34,12 @@
                 "allow": ["warn", "error"]
             }
         ],
-        "no-unused-vars":"warn",
+        "no-unused-vars":[
+            "warn",
+            {
+                "argsIgnorePattern": "^_"
+            }
+        ],
         "jest/no-disabled-tests": "warn",
         "jest/no-focused-tests": "error",
         "jest/no-identical-title": "error",

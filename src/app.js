@@ -8,13 +8,12 @@ const downloads = require('./routes/downloads');
 
 const app = express();
 
-if (!process.env.TEST) {
-    app.use(morgan('short'));
-}
+app.use(morgan('short', {
+    skip: (req, _res) => process.env.TEST || req.url === '/api/health'
+}));
 
 app.use(cors());
 app.use(express.json());
-
 
 const apiRateLimit = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
