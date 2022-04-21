@@ -6,7 +6,7 @@
   "scripts": {
     "pretest": "npx eslint --fix ./src ./tests",
     "test": "jest",
-    "coverage" : "jest --coverage",
+    "coverage": "jest --coverage",
     "doc": "npx apidoc -i ./src -o ./docs",
     "start": "node src/server.js"
   },
@@ -16,7 +16,6 @@
     "apidoc": "^0.51.0",
     "cors": "^2.8.5",
     "express": "^4.17.3",
-    "express-rate-limit": "^6.3.0",
     "mongoose": "^6.2.8",
     "morgan": "^1.10.0"
   },
