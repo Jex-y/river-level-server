@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/Jex-y/river-level-server/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/Jex-y/river-level-server/actions/workflows/codeql-analysis.yml)
 [![Deploy to Amazon ECS](https://github.com/Jex-y/river-level-server/actions/workflows/aws.yml/badge.svg)](https://github.com/Jex-y/river-level-server/actions/workflows/aws.yml)
 
-This repository is a part of a larger project to monitor the river level of the River Wear. The othe components of the project are:
+This repository is a part of a larger project to monitor the river level of the River Wear. The other components of the project are:
 
 - [Sensor Driver](https://github.com/Jex-y/HC-SR04_driver)
 - [IoT client](https://github.com/Jex-y/river-level-client)

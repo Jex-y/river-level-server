@@ -177,7 +177,6 @@ async function getApiEndpoint(url) {
 }
 
 function updateLatestLevel(level, time) {
-    console.log(level, time);
     if (!updateLatestLevel.latestTime || time > updateLatestLevel.latestTime) {
         updateLatestLevel.latestTime = time;
 
