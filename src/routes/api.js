@@ -36,12 +36,14 @@ router.post('/waterLevelMeasurement', async (req, res) => {
     const {waterLevel, metadata} = req.body;
     const hmacSignature = req.headers['x-hmac-signature'];
     const hmacSecret = process.env.SECRET;
-
+    console.log(`Recieved HMAC signature: ${hmacSignature}`);
     if (hmacSignature === undefined) {
         return res.status(401).json({message: 'Unauthorized'});
     } else {
         const hmac = crypto.createHmac('sha256', hmacSecret);
+        console.log(`Received body: ${JSON.stringify(req.body)}`);
         const generatedHmac = hmac.update(JSON.stringify(req.body)).digest('hex');
+        console.log(`Generated HMAC: ${generatedHmac}`);
 
         if (!crypto.timingSafeEqual(Buffer.from(hmacSignature), Buffer.from(generatedHmac))) {
             return res.status(401).json({message: 'Unauthorized'});
