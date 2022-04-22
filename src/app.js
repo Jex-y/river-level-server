@@ -6,8 +6,7 @@ const api = require('./routes/api');
 const downloads = require('./routes/downloads');
 
 morgan.token('viewer-address', (req) => {
-    console.log(req.headers);
-    return req.headers['CloudFront-Viewer-Address'] || 
+    return req.headers['cloudFront-viewer-address'] || 
         req.ip ||
         req._remoteAddress ||
         (req.connection && req.connection.remoteAddress) ||
@@ -15,8 +14,8 @@ morgan.token('viewer-address', (req) => {
 });
 
 morgan.token('viewer-location', (req) => {
-    const country = req.headers['CloudFront-Viewer-Country'] || '-';
-    const city = req.headers['CloudFront-Viewer-City'] || '-';
+    const country = req.headers['cloudFront-viewer-country'] || '-';
+    const city = req.headers['cloudFront-viewer-city'] || '-';
     return `${country}/${city}`;
 });
 
