@@ -10,15 +10,15 @@ morgan.token('viewer-address', (req) => {
         req.ip ||
         req._remoteAddress ||
         (req.connection && req.connection.remoteAddress) ||
-        undefined
+        undefined;
 });
 
 const app = express();
 
 app.use(morgan(
     ':viewer-address :method :url HTTP/:http-version :status -> :response-time ms', {
-    skip: (req, _res) => process.env.TEST || req.originalUrl === '/api/health' 
-}));
+        skip: (req, _res) => process.env.TEST || req.originalUrl === '/api/health' 
+    }));
 
 
 
