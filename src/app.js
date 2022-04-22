@@ -14,11 +14,11 @@ morgan.token('viewer-address', (req) => {
         undefined;
 });
 
-morgan.toke('viewer-location', (req) => {
-    const contry = req.headers['CloudFront-Viewer-Country'] || '-';
+morgan.token('viewer-location', (req) => {
+    const country = req.headers['CloudFront-Viewer-Country'] || '-';
     const city = req.headers['CloudFront-Viewer-City'] || '-';
     return `${country}/${city}`;
-})
+});
 
 const app = express();
 
