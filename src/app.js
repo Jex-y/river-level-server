@@ -5,11 +5,22 @@ const path = require('path');
 const api = require('./routes/api');
 const downloads = require('./routes/downloads');
 
+morgan.token('viewer-address', (req) => {
+    return req.headers['CloudFront-Viewer-Address'] || 
+        req.ip ||
+        req._remoteAddress ||
+        (req.connection && req.connection.remoteAddress) ||
+        undefined
+});
+
 const app = express();
 
-app.use(morgan('short', {
+app.use(morgan(
+    ':viewer-address :method :url HTTP/:http-version :status -> :response-time ms', {
     skip: (req, _res) => process.env.TEST || req.originalUrl === '/api/health' 
 }));
+
+
 
 app.use(cors());
 app.use(express.json());
