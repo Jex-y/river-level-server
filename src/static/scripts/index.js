@@ -26,6 +26,25 @@ const config = {
     ]
 };
 
+moment.updateLocale('en', {
+    relativeTime: {
+        future: 'in %s',
+        past: '%s',
+        s: 'now',
+        ss: '%d secs',
+        m: 'a min',
+        mm: '%d mins',
+        h: 'an hour',
+        hh: '%d hours',
+        d: 'a day',
+        dd: '%d days',
+        M: 'a month',
+        MM: '%d months',
+        y: 'a year',
+        yy: '%d years',
+    }
+});
+
 const MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 window.addEventListener('load', async () => {
@@ -111,6 +130,50 @@ window.addEventListener('load', async () => {
         }
     });
 
+    // TODO: Make promises so can await them and send api calls without race conditions, put in global scope
+    // TODO: Make update card function
+
+    const lastestCard = makeCard(
+        'Latest',
+        [
+            {
+                name: 'Level',
+                id: 'latestLevel',
+                text: '-',
+            },
+            {
+                name: 'Time',
+                id: 'latestTime',
+                text: '-',
+            },
+            {
+                name: 'Age',
+                id: 'latestAge',
+                text: '-'
+            }
+        ]);
+        
+    const summaryCard = makeCard(
+        'Summary',
+        [
+            {
+                name: 'Average',
+                id: 'averageLevel',
+                text: '-',
+            },
+            {
+                name: 'Min',
+                id: 'minLevel',
+                text: '-',
+            },
+            {
+                name: 'Max',
+                id: 'maxLevel',
+                text: '-',
+            }
+        ]
+    );
+
     getApiEndpoint('/api/waterLevelMeasurement/last24Hours')
         .then((data) => {
             if (data.waterLevelMeasurements.length > 0) {
@@ -153,6 +216,7 @@ window.addEventListener('load', async () => {
             let latestMeasurement = measurements[0];
             updateLatestLevel(latestMeasurement.value, latestMeasurement.dateTime);
         });
+    
 });
 
 async function getApiEndpoint(url) {
@@ -163,7 +227,7 @@ async function getApiEndpoint(url) {
             'Content-Type': 'application/json',
         }
     };
-
+    
     return fetch(url, options).then(response => {
         if (response.status === 200) {
             return response.json();
@@ -182,6 +246,51 @@ function updateLatestLevel(level, time) {
 
         document.getElementById('latestLevel').innerText = level.toFixed(2) + 'm';
         document.getElementById('latestTime').innerText = moment(time).format('HH:mm');
+        document.getElementById('latestAge').innerText = moment(time).fromNow(false);
+        
     }
 
+}
+
+function _makeAttributeHTML(id, name, value='-') {
+    if (!id || !name) {
+        return '';
+    }
+
+    return `
+    <div class="row">
+        <div class="col">
+            <p>${name}:</p>
+        </div>
+        <div class="col text-nowrap">
+            <p id=${id}>${value}</p>
+        </div>
+    </div>
+    `;
+}
+
+function _makeCardHTML(title='', attributes=[]) {
+
+    const attributesHTML = attributes
+        .map(attribute => _makeAttributeHTML(attribute.id, attribute.name, attribute.text))
+        .join('\n');
+
+    return `
+    <div class="card info-card bg-dark shadow-lg">
+        <div class="card-body">
+            <h5 class="card-title">${title}</h5>
+            <hr class="mt-2"/>
+            <p class="card-text">
+            ${attributesHTML}
+            </p>
+        </div>
+    </div>
+    `;
+}
+
+function makeCard(title, attributes) {
+    const card = document.createElement('div');
+    card.classList.add('col-lg-2');
+    card.innerHTML = _makeCardHTML(title, attributes);
+    document.querySelector('#grid').appendChild(card);
 }
